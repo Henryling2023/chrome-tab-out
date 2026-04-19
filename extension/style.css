@@ -1213,160 +1213,68 @@ footer { animation: fadeUp 0.5s ease 0.65s both; }
   line-height: 1.3;
 }
 
-/* ================================================================
-   🌟 QUICK ACCESS — 带编辑功能的样式
-   ================================================================ */
+/* 🌟 QUICK ACCESS 可编辑样式 */
 .quick-links-section {
-  margin-bottom: 32px;
-  animation: fadeUp 0.5s ease 0.1s both;
+  margin: 40px 0 20px;
 }
-
-.quick-links-section .section-header {
-  margin-bottom: 16px;
-}
-
 .quick-links-title {
-  font-family: 'Newsreader', serif;
-  font-weight: 400;
   font-size: 18px;
+  color: #666;
   font-style: italic;
-  color: var(--muted);
+  margin-bottom: 12px;
 }
-
-.quick-links-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 16px;
+#quickLinksGrid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
-
-.quick-link-item {
-  position: relative;
+.quick-link-card {
+  width: 70px;
+  height: 70px;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 12px 8px;
-  background: var(--card-bg);
-  border: 1px solid var(--warm-gray);
-  border-radius: 8px;
+  justify-content: center;
+  gap: 4px;
+  font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-
-.quick-link-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow);
-  border-color: var(--accent-amber);
-}
-
-/* 添加按钮样式 */
-.quick-link-item.add-btn {
-  border: 1px dashed var(--warm-gray);
-  background: transparent;
-  color: var(--muted);
-}
-
-.quick-link-item.add-btn:hover {
-  border-color: var(--accent-amber);
-  color: var(--accent-amber);
-}
-
-.quick-link-icon {
+.quick-link-card img {
   width: 24px;
   height: 24px;
-  object-fit: contain;
 }
-
-.quick-link-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--ink);
-  text-align: center;
-  line-height: 1.3;
-}
-
-/* 编辑按钮 */
-.link-edit-btn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  background: var(--card-bg);
-  border: 1px solid var(--warm-gray);
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: all 0.2s;
-}
-
-.quick-link-item:hover .link-edit-btn {
+.quick-link-card:hover .edit-menu {
   opacity: 1;
 }
-
-.link-edit-btn:hover {
-  background: var(--accent-rose);
-  border-color: var(--accent-rose);
-  color: white;
-}
-
-/* 弹窗样式 */
-.quick-link-modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-overlay {
+.edit-menu {
   position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.2);
-}
-
-.modal-content {
-  position: relative;
-  background: var(--card-bg);
-  border: 1px solid var(--warm-gray);
-  border-radius: 8px;
-  padding: 24px;
-  width: 320px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
-
-.modal-content h3 {
-  font-family: 'Newsreader', serif;
-  font-size: 20px;
-  margin-bottom: 20px;
-  color: var(--ink);
-}
-
-.modal-form label {
-  display: block;
-  margin-bottom: 16px;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.modal-form input {
+  bottom: 2px;
   width: 100%;
-  margin-top: 6px;
-  padding: 8px 12px;
-  border: 1px solid var(--warm-gray);
-  border-radius: 4px;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 14px;
-}
-
-.modal-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.edit-btn, .del-btn {
+  font-size: 10px;
+  padding: 2px 4px;
+  border: none;
+  border-radius: 3px;
+  background: #ff9800;
+  color: white;
+  cursor: pointer;
+}
+.del-btn {
+  background: #f44336;
+}
+.add-btn {
+  font-size: 24px;
+  color: #999;
+  border: 1px dashed #ccc;
 }
