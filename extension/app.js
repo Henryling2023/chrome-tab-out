@@ -15,41 +15,133 @@
 
 'use strict';
 
-
 /* ----------------------------------------------------------------
-   🌟 快捷访问网站配置 — 在这里增删改你的常用网站
+   🌟 快捷访问网站配置 — 可视化编辑版（存在本地存储）
    ---------------------------------------------------------------- */
-const QUICK_LINKS = [
-  { name: "ChatGPT", url: "https://chatgpt.com", icon: "https://chatgpt.com/favicon.ico" },
-  { name: "Claude", url: "https://claude.ai", icon: "https://claude.ai/favicon.ico" },
-  { name: "GitHub", url: "https://github.com", icon: "https://github.com/favicon.ico" },
-  { name: "Google", url: "https://google.com", icon: "https://www.google.com/favicon.ico" },
-  { name: "Gmail", url: "https://mail.google.com", icon: "https://mail.google.com/favicon.ico" },
-  { name: "YouTube", url: "https://youtube.com", icon: "https://www.youtube.com/favicon.ico" },
-  { name: "X", url: "https://x.com", icon: "https://x.com/favicon.ico" },
-  { name: "Notion", url: "https://notion.so", icon: "https://notion.so/favicon.ico" },
+
+// 默认的初始链接（仅第一次加载时使用）
+const DEFAULT_QUICK_LINKS = [
+  { name: "GitHub", url: "https://github.com" },
+  { name: "ChatGPT", url: "https://chatgpt.com" },
+  { name: "Notion", url: "https://notion.so" },
+  { name: "YouTube", url: "https://youtube.com" },
 ];
 
-// 渲染快捷访问栏
-function renderQuickLinks() {
-  const container = document.getElementById('quickLinksContainer');
+let currentEditingLinkId = null;
+
+// 从本地存储加载链接
+async function loadQuickLinks() {
+  const { quickLinks } = await chrome.storage.local.get('quickLinks');
+  if (!quickLinks || quickLinks.length === 0) {
+    // 第一次使用，加载默认链接
+    await chrome.storage.local.set({ quickLinks: DEFAULT_QUICK_LINKS.map((l, i) => ({
+      ...l,
+      id: Date.now() + i
+    }))});
+    return DEFAULT_QUICK_LINKS.map((l, i) => ({ ...l, id: Date.now() + i }));
+  }
+  return quickLinks;
+}
+
+// 保存链接到本地存储
+async function saveQuickLinks(links) {
+  await chrome.storage.local.set({ quickLinks: links });
+}
+
+// 渲染快捷访问栏（带添加按钮）
+async function renderQuickLinks() {
+  const container = document.getElementById('quickLinksGrid');
   if (!container) return;
 
-  container.innerHTML = QUICK_LINKS.map(link => `
-    <div class="quick-link-item" data-url="${link.url}">
-      <img class="quick-link-icon" src="${link.icon}" alt="${link.name}" onerror="this.style.display='none'">
-      <div class="quick-link-name">${link.name}</div>
-    </div>
-  `).join('');
+  const links = await loadQuickLinks();
 
-  // 点击打开新标签
-  document.querySelectorAll('.quick-link-item').forEach(el => {
-    el.addEventListener('click', () => {
-      chrome.tabs.create({ url: el.dataset.url });
+  container.innerHTML = links.map(link => `
+    <div class="quick-link-item" data-id="${link.id}" data-url="${link.url}">
+      <img class="quick-link-icon" 
+           src="https://www.google.com/s2/favicons?domain=${new URL(link.url).hostname}&sz=24" 
+           alt="${link.name}" 
+           onerror="this.style.display='none'">
+      <div class="quick-link-name">${link.name}</div>
+      <button class="link-edit-btn" onclick="openEditModal(${link.id}, event)" title="Edit">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+      </button>
+    </div>
+  `).join('') + `
+    <div class="quick-link-item add-btn" onclick="openAddModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+    </div>
+  `;
+
+  // 绑定点击打开链接事件
+  document.querySelectorAll('.quick-link-item:not(.add-btn)').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('link-edit-btn')) {
+        chrome.tabs.create({ url: el.dataset.url });
+      }
     });
   });
 }
 
+// 打开添加链接弹窗
+function openAddModal() {
+  currentEditingLinkId = null;
+  document.getElementById('modalTitle').textContent = 'Add New Link';
+  document.getElementById('linkNameInput').value = '';
+  document.getElementById('linkUrlInput').value = '';
+  document.getElementById('quickLinkModal').style.display = 'flex';
+}
+
+// 打开编辑链接弹窗
+async function openEditModal(id, e) {
+  e.stopPropagation();
+  const links = await loadQuickLinks();
+  const link = links.find(l => l.id === id);
+  if (!link) return;
+
+  currentEditingLinkId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Link';
+  document.getElementById('linkNameInput').value = link.name;
+  document.getElementById('linkUrlInput').value = link.url;
+  document.getElementById('quickLinkModal').style.display = 'flex';
+}
+
+// 关闭弹窗
+function closeQuickLinkModal() {
+  document.getElementById('quickLinkModal').style.display = 'none';
+  currentEditingLinkId = null;
+}
+
+// 保存链接（添加/编辑）
+async function saveQuickLink() {
+  const name = document.getElementById('linkNameInput').value.trim();
+  const url = document.getElementById('linkUrlInput').value.trim();
+  if (!name || !url) return;
+
+  const links = await loadQuickLinks();
+
+  if (currentEditingLinkId) {
+    // 编辑模式
+    const index = links.findIndex(l => l.id === currentEditingLinkId);
+    if (index !== -1) {
+      links[index] = { id: currentEditingLinkId, name, url };
+    }
+  } else {
+    // 添加模式
+    links.push({ id: Date.now(), name, url });
+  }
+
+  await saveQuickLinks(links);
+  renderQuickLinks();
+  closeQuickLinkModal();
+  showToast(currentEditingLinkId ? 'Link updated' : 'Link added');
+}
+
+// 绑定保存按钮事件（放在 renderDashboard 初始化之前）
+document.getElementById('modalSaveBtn').addEventListener('click', saveQuickLink);
 /* ----------------------------------------------------------------
    CHROME TABS — Direct API Access
    ---------------------------------------------------------------- */
