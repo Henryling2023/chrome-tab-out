@@ -1156,3 +1156,59 @@ footer { animation: fadeUp 0.5s ease 0.65s both; }
   opacity: 0.6;
   flex-shrink: 0;
 }
+
+/* ================================================================
+   🌟 QUICK ACCESS LINKS — 我添加的快捷访问栏样式（已完美融合）
+   ================================================================ */
+.quick-links-section {
+  margin-bottom: 32px;
+  animation: fadeUp 0.5s ease 0.1s both;
+}
+
+.quick-links-title {
+  font-family: 'Newsreader', serif;
+  font-weight: 400;
+  font-size: 18px;
+  font-style: italic;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 16px;
+}
+
+.quick-link-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--warm-gray);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-link-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+  border-color: var(--accent-amber);
+}
+
+.quick-link-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.quick-link-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: center;
+  line-height: 1.3;
+}
