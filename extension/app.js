@@ -42,16 +42,22 @@ async function renderQuickLinks() {
   links.forEach(link => {
     const item = document.createElement("div");
     item.className = "quick-link-card";
+    item.dataset.url = link.url;
+    item.dataset.id = link.id;
+
+    // 只渲染图标和名称，不显示URL
     item.innerHTML = `
-      <img src="https://www.google.com/s2/favicons?domain=${new URL(link.url).hostname}&sz=32">
-      <span>${link.name}</span>
+      <img src="https://www.google.com/s2/favicons?domain=${new URL(link.url).hostname}&sz=32" 
+           alt="${link.name}"
+           onerror="this.style.display='none'">
+      <span class="quick-link-name">${link.name}</span>
       <div class="edit-menu">
-        <button class="edit-btn" data-id="${link.id}">Edit</button>
-        <button class="del-btn" data-id="${link.id}">Delete</button>
+        <button class="edit-btn" title="Edit">✏️</button>
+        <button class="del-btn" title="Delete">🗑️</button>
       </div>
     `;
 
-    // 左键打开
+    // 左键打开链接（点击非编辑按钮区域）
     item.addEventListener("click", (e) => {
       if (!e.target.classList.contains("edit-btn") && !e.target.classList.contains("del-btn")) {
         chrome.tabs.create({ url: link.url });
@@ -68,20 +74,22 @@ async function renderQuickLinks() {
   addBtn.onclick = openAddLinkModal;
   container.appendChild(addBtn);
 
-  // 绑定编辑删除
+  // 绑定编辑删除事件
   bindEditDeleteEvents();
 }
 
 function bindEditDeleteEvents() {
   document.querySelectorAll(".edit-btn").forEach(btn => {
     btn.addEventListener("click", async (e) => {
-      const id = Number(e.target.dataset.id);
+      e.stopPropagation();
+      const item = btn.closest(".quick-link-card");
+      const id = Number(item.dataset.id);
       const links = await loadQuickLinks();
       const link = links.find(l => l.id === id);
       if (!link) return;
 
-      const newName = prompt("Edit name:", link.name);
-      const newUrl = prompt("Edit URL:", link.url);
+      const newName = prompt("Edit link name:", link.name);
+      const newUrl = prompt("Edit link URL:", link.url);
       if (!newName || !newUrl) return;
 
       const updated = links.map(l =>
@@ -89,17 +97,21 @@ function bindEditDeleteEvents() {
       );
       await chrome.storage.local.set({ quickLinks: updated });
       renderQuickLinks();
+      showToast("Link updated");
     });
   });
 
   document.querySelectorAll(".del-btn").forEach(btn => {
     btn.addEventListener("click", async (e) => {
-      const id = Number(e.target.dataset.id);
+      e.stopPropagation();
+      const item = btn.closest(".quick-link-card");
+      const id = Number(item.dataset.id);
       if (!confirm("Delete this link?")) return;
       const links = await loadQuickLinks();
       const filtered = links.filter(l => l.id !== id);
       await chrome.storage.local.set({ quickLinks: filtered });
       renderQuickLinks();
+      showToast("Link deleted");
     });
   });
 }
