@@ -24,13 +24,36 @@
     </div>
   </header>
 
-  <!-- ================================================================
-       🌟 QUICK LINKS — 你的常用网站快捷入口（我加在这里）
-       ================================================================ -->
-  <div class="quick-links-section">
+<!-- 🌟 QUICK ACCESS LINKS — 支持可视化编辑 -->
+<div class="quick-links-section">
+  <div class="section-header">
     <h2 class="quick-links-title">Quick Access</h2>
-    <div class="quick-links-grid" id="quickLinksGrid"></div>
+    <div class="section-line"></div>
   </div>
+  <div class="quick-links-grid" id="quickLinksGrid"></div>
+
+  <!-- 添加/编辑弹窗（默认隐藏） -->
+  <div class="quick-link-modal" id="quickLinkModal" style="display: none;">
+    <div class="modal-overlay" onclick="closeQuickLinkModal()"></div>
+    <div class="modal-content">
+      <h3 id="modalTitle">Add New Link</h3>
+      <div class="modal-form">
+        <label>
+          Name
+          <input type="text" id="linkNameInput" placeholder="e.g. GitHub">
+        </label>
+        <label>
+          URL
+          <input type="url" id="linkUrlInput" placeholder="https://github.com">
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="action-btn" onclick="closeQuickLinkModal()">Cancel</button>
+        <button class="action-btn primary" id="modalSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- ================================================================
        TAB OUT DUPES BANNER
